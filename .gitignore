@@ -1,0 +1,27 @@
+# Credenciais reais do banco — cada ambiente tem o seu
+includes/db_config.php
+
+# Conteúdo enviado pelos usuários (imagens de posts, avatares, ícones)
+# (uma pasta ignorada com "uploads/*" bloquearia até as exceções abaixo,
+# por isso ignoramos o CONTEÚDO de cada subpasta, não a subpasta em si)
+uploads/avatars/*
+!uploads/avatars/.gitkeep
+uploads/gallery/*
+!uploads/gallery/.gitkeep
+uploads/modules/*
+!uploads/modules/.gitkeep
+uploads/posts/*
+!uploads/posts/.gitkeep
+uploads/*.png
+uploads/*.jpg
+uploads/*.jpeg
+uploads/*.gif
+uploads/*.webp
+
+# Backups locais (config antigo, arquivos obsoletos removidos)
+backups/
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+*.log

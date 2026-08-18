@@ -1,0 +1,48 @@
+Options -Indexes
+Options -MultiViews
+
+# Segurança de cabeçalhos
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Proteger arquivos sensíveis
+<FilesMatch "^(config|database)\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Bloquear acesso direto a includes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Bloquear acesso direto a includes/
+    RewriteRule ^includes/ - [F,L]
+
+    # Bloquear acesso direto a backups/ (contém config.php.bak com credenciais)
+    RewriteRule ^backups/ - [F,L]
+
+    # Bloquear acesso direto a migrations/ (scripts SQL brutos)
+    RewriteRule ^migrations/ - [F,L]
+
+    # Bloquear acesso direto à pasta uploads por PHP direto
+    RewriteCond %{REQUEST_URI} ^/uploads/
+    RewriteCond %{HTTP_REFERER} !^https?://%{HTTP_HOST}
+    # RewriteRule .* - [F] # Descomente para restringir acesso direto ao uploads
+
+    # Compressão de assets
+    <IfModule mod_deflate.c>
+        AddOutputFilterByType DEFLATE text/css text/javascript application/javascript
+    </IfModule>
+
+    # Cache de assets estáticos
+    <FilesMatch "\.(css|js|png|jpg|jpeg|gif|webp|ico|woff2)$">
+        Header set Cache-Control "max-age=2592000, public"
+    </FilesMatch>
+</IfModule>
+
+# Charset padrão
+AddDefaultCharset UTF-8
