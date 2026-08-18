@@ -3,7 +3,7 @@
 // CONFIGURAÃ‡ÃƒO GERAL â€” Intranet v2.1
 // ============================================================
 define('APP_NAME',    'Intranet');
-define('APP_VERSION', '2.2.0');
+define('APP_VERSION', '2.2.1');
 
 // â”€â”€ BASE_URL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Detecta automaticamente o host (IP/domÃ­nio) a partir da

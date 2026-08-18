@@ -113,10 +113,10 @@ require_once __DIR__ . '/includes/header.php';
       if ($featMediaType === 'slider') {
           $featGallery = Database::fetchAll('SELECT * FROM post_gallery WHERE post_id=? ORDER BY sort_order LIMIT 6', [$featured['id']]);
           foreach ($featGallery as $fg) {
-              $featSlides[] = ['url' => UPLOAD_URL.'gallery/'.htmlspecialchars($fg['filename']), 'alt' => htmlspecialchars($fg['caption']??'')];
+              $featSlides[] = ['url' => UPLOAD_URL.'gallery/'.htmlspecialchars($fg['filename']), 'alt' => htmlspecialchars($fg['caption']??''), 'pos' => htmlspecialchars($fg['image_position']??'50% 50%')];
           }
       } elseif ($featMediaType === 'image' && !empty($featured['cover_image']) && file_exists(str_replace('/', DIRECTORY_SEPARATOR, UPLOAD_DIR.$featured['cover_image']))) {
-          $featSlides[] = ['url' => UPLOAD_URL.htmlspecialchars($featured['cover_image']), 'alt' => htmlspecialchars($featured['cover_image_alt']??$featured['title'])];
+          $featSlides[] = ['url' => UPLOAD_URL.htmlspecialchars($featured['cover_image']), 'alt' => htmlspecialchars($featured['cover_image_alt']??$featured['title']), 'pos' => htmlspecialchars($featured['cover_image_position']??'50% 50%')];
       }
       if ($featMediaType === 'video' && $featVideoUrl) {
           if ($featVideoType === 'youtube') {
@@ -156,7 +156,7 @@ require_once __DIR__ . '/includes/header.php';
             <div class="post-slider-track">
               <?php foreach ($featSlides as $fs): ?>
               <div class="post-slider-slide">
-                <img src="<?= $fs['url'] ?>" alt="<?= $fs['alt'] ?>" onclick="openLightbox(this)">
+                <img src="<?= $fs['url'] ?>" alt="<?= $fs['alt'] ?>" style="object-position:<?= $fs['pos'] ?? '50% 50%' ?>" onclick="openLightbox(this)">
               </div>
               <?php endforeach; ?>
             </div>
@@ -465,10 +465,10 @@ require_once __DIR__ . '/includes/header.php';
         if ($mediaType === 'slider') {
             $pgallery = Database::fetchAll('SELECT * FROM post_gallery WHERE post_id=? ORDER BY sort_order', [$post['id']]);
             foreach ($pgallery as $gi) {
-                $slides[] = ['url' => UPLOAD_URL.'gallery/'.htmlspecialchars($gi['filename']), 'alt' => htmlspecialchars($gi['caption']??''), 'caption' => htmlspecialchars($gi['caption']??'')];
+                $slides[] = ['url' => UPLOAD_URL.'gallery/'.htmlspecialchars($gi['filename']), 'alt' => htmlspecialchars($gi['caption']??''), 'caption' => htmlspecialchars($gi['caption']??''), 'pos' => htmlspecialchars($gi['image_position']??'50% 50%')];
             }
         } elseif ($mediaType === 'image' && !empty($post['cover_image']) && file_exists(UPLOAD_DIR . $post['cover_image'])) {
-            $slides[] = ['url' => UPLOAD_URL.htmlspecialchars($post['cover_image']), 'alt' => htmlspecialchars($post['cover_image_alt']??$post['title']), 'caption' => htmlspecialchars($post['cover_image_caption']??'')];
+            $slides[] = ['url' => UPLOAD_URL.htmlspecialchars($post['cover_image']), 'alt' => htmlspecialchars($post['cover_image_alt']??$post['title']), 'caption' => htmlspecialchars($post['cover_image_caption']??''), 'pos' => htmlspecialchars($post['cover_image_position']??'50% 50%')];
         }
 
         // Vídeo de capa
@@ -518,6 +518,7 @@ require_once __DIR__ . '/includes/header.php';
           <?php foreach ($slides as $slide): ?>
           <div class="post-slider-slide">
             <img src="<?= $slide['url'] ?>" alt="<?= $slide['alt'] ?>" loading="lazy"
+                 style="object-position:<?= $slide['pos'] ?? '50% 50%' ?>"
                  onclick="openLightbox(this)">
             <?php if ($slide['caption']): ?>
             <div class="post-slider-caption"><?= $slide['caption'] ?></div>

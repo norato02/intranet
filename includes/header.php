@@ -7,7 +7,12 @@ if (!defined('BASE_URL')) {
 }
 $siteName    = getSetting('site_name', 'Intranet');
 $siteTagline = getSetting('site_tagline', 'Unidade de Saúde');
-$navItems    = Database::fetchAll('SELECT * FROM nav_items WHERE active=1 AND parent_id IS NULL ORDER BY sort_order');
+$navItemsAll = Database::fetchAll('SELECT * FROM nav_items WHERE active=1 ORDER BY sort_order');
+$navItems    = array_values(array_filter($navItemsAll, fn($i) => $i['parent_id'] === null));
+$navChildren = [];
+foreach ($navItemsAll as $i) {
+    if ($i['parent_id'] !== null) $navChildren[$i['parent_id']][] = $i;
+}
 $isDark      = ($_SESSION['dark_mode'] ?? false) || (isset($_COOKIE['acqua_dark']) && $_COOKIE['acqua_dark'] === 'dark');
 $darkAttr    = $isDark ? 'dark' : 'light';
 $logoFile    = getSetting('site_logo', '');
@@ -40,7 +45,27 @@ $logoFile    = getSetting('site_logo', '');
   </a>
 
   <ul class="navbar-nav" id="navbarNav">
-    <?php foreach ($navItems as $item): ?>
+    <?php foreach ($navItems as $item):
+      $children = $navChildren[$item['id']] ?? [];
+    ?>
+    <?php if ($children): ?>
+    <li class="dropdown">
+      <a href="javascript:void(0)" class="<?= (($_GET['page'] ?? '') === str_replace('index.php?page=', '', $item['url'])) ? 'active' : '' ?>">
+        <?php if ($item['icon']): ?><span class="material-icons"><?= htmlspecialchars($item['icon']) ?></span><?php endif; ?>
+        <?= htmlspecialchars($item['label']) ?>
+        <span class="material-icons" style="font-size:16px;margin-left:2px">expand_more</span>
+      </a>
+      <div class="dropdown-menu">
+        <?php foreach ($children as $child): ?>
+        <a href="<?= htmlspecialchars($child['url']) ?>" class="dropdown-item"
+           <?= $child['open_new_tab'] ? 'target="_blank"' : '' ?>>
+          <?php if ($child['icon']): ?><span class="material-icons"><?= htmlspecialchars($child['icon']) ?></span><?php endif; ?>
+          <?= htmlspecialchars($child['label']) ?>
+        </a>
+        <?php endforeach; ?>
+      </div>
+    </li>
+    <?php else: ?>
     <li>
       <a href="<?= htmlspecialchars($item['url']) ?>"
          <?= $item['open_new_tab'] ? 'target="_blank"' : '' ?>
@@ -49,6 +74,7 @@ $logoFile    = getSetting('site_logo', '');
         <?= htmlspecialchars($item['label']) ?>
       </a>
     </li>
+    <?php endif; ?>
     <?php endforeach; ?>
     <?php if (!isLoggedIn()): ?>
     <li><a href="<?= BASE_URL ?>/public.php"><span class="material-icons">public</span>Área Pública</a></li>

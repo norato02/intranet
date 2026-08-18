@@ -13,6 +13,18 @@ $tagline   = getSetting('site_tagline', 'Unidade de Saúde');
 $isDark    = isset($_COOKIE['acqua_dark']) && $_COOKIE['acqua_dark'] === 'dark';
 $logoFile  = getSetting('site_logo', '');
 $darkAttr  = $isDark ? 'dark' : 'light';
+
+// Menu extra (além de Início/Comunicados/Notícias/Sistemas, que já têm
+// versão própria fixa abaixo com URLs de public.php) — mesma fonte
+// (nav_items) usada no menu de quem está logado, pra nunca ficarem
+// diferentes entre as duas telas.
+$navCoreLabels = ['Início', 'Comunicados', 'Notícias Externas', 'Sistemas'];
+$navItemsAllPub = Database::fetchAll('SELECT * FROM nav_items WHERE active=1 ORDER BY sort_order');
+$navExtra = array_values(array_filter($navItemsAllPub, fn($i) => $i['parent_id'] === null && !in_array($i['label'], $navCoreLabels, true)));
+$navChildrenPub = [];
+foreach ($navItemsAllPub as $i) {
+    if ($i['parent_id'] !== null) $navChildrenPub[$i['parent_id']][] = $i;
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="<?= $darkAttr ?>">
@@ -60,6 +72,33 @@ $darkAttr  = $isDark ? 'dark' : 'light';
     <li><a href="public.php?page=sistemas" class="<?= $page==='sistemas'?'active':'' ?>">
       <span class="material-icons">apps</span>Sistemas
     </a></li>
+    <?php foreach ($navExtra as $item):
+      $children = $navChildrenPub[$item['id']] ?? [];
+    ?>
+    <?php if ($children): ?>
+    <li class="dropdown">
+      <a href="javascript:void(0)">
+        <?php if ($item['icon']): ?><span class="material-icons"><?= htmlspecialchars($item['icon']) ?></span><?php endif; ?>
+        <?= htmlspecialchars($item['label']) ?>
+        <span class="material-icons" style="font-size:16px;margin-left:2px">expand_more</span>
+      </a>
+      <div class="dropdown-menu">
+        <?php foreach ($children as $child): ?>
+        <a href="<?= htmlspecialchars($child['url']) ?>" class="dropdown-item"
+           <?= $child['open_new_tab'] ? 'target="_blank"' : '' ?>>
+          <?php if ($child['icon']): ?><span class="material-icons"><?= htmlspecialchars($child['icon']) ?></span><?php endif; ?>
+          <?= htmlspecialchars($child['label']) ?>
+        </a>
+        <?php endforeach; ?>
+      </div>
+    </li>
+    <?php else: ?>
+    <li><a href="<?= htmlspecialchars($item['url']) ?>" <?= $item['open_new_tab'] ? 'target="_blank"' : '' ?>>
+      <?php if ($item['icon']): ?><span class="material-icons"><?= htmlspecialchars($item['icon']) ?></span><?php endif; ?>
+      <?= htmlspecialchars($item['label']) ?>
+    </a></li>
+    <?php endif; ?>
+    <?php endforeach; ?>
   </ul>
 
   <div class="navbar-end">
@@ -167,9 +206,9 @@ $darkAttr  = $isDark ? 'dark' : 'light';
       $featYtId = ''; $featEmbedUrl = '';
       if ($featMediaType === 'slider') {
           $fg2 = Database::fetchAll('SELECT * FROM post_gallery WHERE post_id=? ORDER BY sort_order LIMIT 6', [$featured['id']]);
-          foreach ($fg2 as $fg) { $featSlides[] = ['url'=>UPLOAD_URL.'gallery/'.htmlspecialchars($fg['filename']),'alt'=>htmlspecialchars($fg['caption']??'')]; }
+          foreach ($fg2 as $fg) { $featSlides[] = ['url'=>UPLOAD_URL.'gallery/'.htmlspecialchars($fg['filename']),'alt'=>htmlspecialchars($fg['caption']??''),'pos'=>htmlspecialchars($fg['image_position']??'50% 50%')]; }
       } elseif ($featMediaType === 'image' && !empty($featured['cover_image']) && file_exists(str_replace('/',DIRECTORY_SEPARATOR,UPLOAD_DIR.$featured['cover_image']))) {
-          $featSlides[] = ['url'=>UPLOAD_URL.htmlspecialchars($featured['cover_image']),'alt'=>htmlspecialchars($featured['cover_image_alt']??$featured['title'])];
+          $featSlides[] = ['url'=>UPLOAD_URL.htmlspecialchars($featured['cover_image']),'alt'=>htmlspecialchars($featured['cover_image_alt']??$featured['title']),'pos'=>htmlspecialchars($featured['cover_image_position']??'50% 50%')];
       }
       if ($featMediaType === 'video' && $featVideoUrl) {
           if ($featVideoType==='youtube') {
@@ -202,7 +241,7 @@ $darkAttr  = $isDark ? 'dark' : 'light';
             <div class="post-slider-track">
               <?php foreach ($featSlides as $fs): ?>
               <div class="post-slider-slide">
-                <img src="<?= $fs['url'] ?>" alt="<?= $fs['alt'] ?>" onclick="openLightbox(this)">
+                <img src="<?= $fs['url'] ?>" alt="<?= $fs['alt'] ?>" style="object-position:<?= $fs['pos'] ?? '50% 50%' ?>" onclick="openLightbox(this)">
               </div>
               <?php endforeach; ?>
             </div>
@@ -524,10 +563,10 @@ $darkAttr  = $isDark ? 'dark' : 'light';
         if ($mediaType === 'slider') {
             $pgallery = Database::fetchAll('SELECT * FROM post_gallery WHERE post_id=? ORDER BY sort_order', [$post['id']]);
             foreach ($pgallery as $gi) {
-                $slides[] = ['url' => UPLOAD_URL.'gallery/'.htmlspecialchars($gi['filename']), 'alt' => htmlspecialchars($gi['caption']??''), 'caption' => htmlspecialchars($gi['caption']??'')];
+                $slides[] = ['url' => UPLOAD_URL.'gallery/'.htmlspecialchars($gi['filename']), 'alt' => htmlspecialchars($gi['caption']??''), 'caption' => htmlspecialchars($gi['caption']??''), 'pos' => htmlspecialchars($gi['image_position']??'50% 50%')];
             }
         } elseif ($mediaType === 'image' && !empty($post['cover_image']) && file_exists(UPLOAD_DIR . $post['cover_image'])) {
-            $slides[] = ['url' => UPLOAD_URL.htmlspecialchars($post['cover_image']), 'alt' => htmlspecialchars($post['cover_image_alt']??$post['title']), 'caption' => htmlspecialchars($post['cover_image_caption']??'')];
+            $slides[] = ['url' => UPLOAD_URL.htmlspecialchars($post['cover_image']), 'alt' => htmlspecialchars($post['cover_image_alt']??$post['title']), 'caption' => htmlspecialchars($post['cover_image_caption']??''), 'pos' => htmlspecialchars($post['cover_image_position']??'50% 50%')];
         }
 
         // Vídeo de capa
@@ -577,6 +616,7 @@ $darkAttr  = $isDark ? 'dark' : 'light';
           <?php foreach ($slides as $slide): ?>
           <div class="post-slider-slide">
             <img src="<?= $slide['url'] ?>" alt="<?= $slide['alt'] ?>" loading="lazy"
+                 style="object-position:<?= $slide['pos'] ?? '50% 50%' ?>"
                  onclick="openLightbox(this)">
             <?php if ($slide['caption']): ?>
             <div class="post-slider-caption"><?= $slide['caption'] ?></div>
