@@ -1,19 +1,19 @@
-<?php
+﻿<?php
 // ============================================================
-// CONFIGURAÇÃO GERAL — Intranet v2.1
+// CONFIGURAÃ‡ÃƒO GERAL â€” Intranet v2.1
 // ============================================================
 define('APP_NAME',    'Intranet');
-define('APP_VERSION', '2.1.0');
+define('APP_VERSION', '2.2.0');
 
-// ── BASE_URL ─────────────────────────────────────────────────
-// Detecta automaticamente o host (IP/domínio) a partir da
-// requisição atual, e usa o nome da pasta do projeto como path.
+// â”€â”€ BASE_URL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Detecta automaticamente o host (IP/domÃ­nio) a partir da
+// requisiÃ§Ã£o atual, e usa o nome da pasta do projeto como path.
 // Funciona em XAMPP Windows, Apache Linux, qualquer IP/porta.
 //
 // SE ainda houver problema de redirecionamento, descomente a
-// linha abaixo e ajuste para o seu endereço:
+// linha abaixo e ajuste para o seu endereÃ§o:
 // define('BASE_URL', 'http://10.10.254.49/intranet-acqua');
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 (function () {
     // Protocolo
@@ -22,60 +22,60 @@ define('APP_VERSION', '2.1.0');
            || (!empty($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443);
     $scheme = $https ? 'https' : 'http';
 
-    // Host real da requisição (inclui porta se diferente de 80/443)
+    // Host real da requisiÃ§Ã£o (inclui porta se diferente de 80/443)
     $host = $_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? 'localhost');
 
-    // Nome da pasta do projeto = nome do diretório raiz do projeto
-    // BASE_PATH ainda não está definido, usamos __FILE__
+    // Nome da pasta do projeto = nome do diretÃ³rio raiz do projeto
+    // BASE_PATH ainda nÃ£o estÃ¡ definido, usamos __FILE__
     // __FILE__ = C:\xampp\htdocs\intranet-acqua\includes\config.php
     // dirname(dirname(__FILE__)) = C:\xampp\htdocs\intranet-acqua
     // basename(...) = intranet-acqua
     $projectFolder = basename(dirname(dirname(__FILE__)));
 
-    // Verificar se está na raiz do servidor (sem subdiretório)
-    // usando SCRIPT_NAME: /intranet-acqua/index.php → começa com /intranet-acqua
+    // Verificar se estÃ¡ na raiz do servidor (sem subdiretÃ³rio)
+    // usando SCRIPT_NAME: /intranet-acqua/index.php â†’ comeÃ§a com /intranet-acqua
     $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '/index.php');
 
     if (str_starts_with(ltrim($scriptName, '/'), $projectFolder . '/') ||
         str_starts_with(ltrim($scriptName, '/'), $projectFolder . '\\')) {
-        // Projeto está em subdiretório
+        // Projeto estÃ¡ em subdiretÃ³rio
         $sub = '/' . $projectFolder;
     } else {
-        // Pode estar em subdiretório diferente — usar dirname do SCRIPT_NAME
+        // Pode estar em subdiretÃ³rio diferente â€” usar dirname do SCRIPT_NAME
         // e normalizar para achar a raiz do projeto
         $parts  = explode('/', trim($scriptName, '/'));
         $root   = $parts[0] ?? '';
         $sub    = $root ? '/' . $root : '';
 
-        // Se o script está em admin/ ou api/, SCRIPT_NAME tem 2 níveis
-        // Ex: /intranet-acqua/admin/index.php → partes[0]=intranet-acqua
-        // Já está correto. Mas se estiver na raiz: /index.php → partes[0]=index.php
+        // Se o script estÃ¡ em admin/ ou api/, SCRIPT_NAME tem 2 nÃ­veis
+        // Ex: /intranet-acqua/admin/index.php â†’ partes[0]=intranet-acqua
+        // JÃ¡ estÃ¡ correto. Mas se estiver na raiz: /index.php â†’ partes[0]=index.php
         if (str_contains($root, '.php')) {
-            $sub = ''; // está na raiz do servidor
+            $sub = ''; // estÃ¡ na raiz do servidor
         }
     }
 
     define('BASE_URL', $scheme . '://' . $host . $sub);
 })();
 
-// ── BASE_PATH ────────────────────────────────────────────────
+// â”€â”€ BASE_PATH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 define('BASE_PATH', dirname(__DIR__));
 
-// ── BANCO DE DADOS ───────────────────────────────────────────
-// Dados de conexão ficam em arquivo próprio (não sobrescrito em
-// futuras atualizações). Edite includes/db_config.php para
-// alterar host/usuário/senha/nome do banco.
+// â”€â”€ BANCO DE DADOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Dados de conexÃ£o ficam em arquivo prÃ³prio (nÃ£o sobrescrito em
+// futuras atualizaÃ§Ãµes). Edite includes/db_config.php para
+// alterar host/usuÃ¡rio/senha/nome do banco.
 require_once __DIR__ . '/db_config.php';
 
-// ── UPLOAD ───────────────────────────────────────────────────
+// â”€â”€ UPLOAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 define('UPLOAD_DIR', BASE_PATH . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR);
 define('UPLOAD_URL', BASE_URL  . '/uploads/');
 
-// ── SESSÃO ───────────────────────────────────────────────────
+// â”€â”€ SESSÃƒO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 define('SESSION_NAME',     'acqua_session');
 define('SESSION_LIFETIME', 28800); // 8 horas
 
-// ── AMBIENTE ─────────────────────────────────────────────────
+// â”€â”€ AMBIENTE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 define('DEBUG_MODE', true);
 
 if (DEBUG_MODE) {
@@ -86,7 +86,7 @@ if (DEBUG_MODE) {
     error_reporting(0);
 }
 
-// ── SESSÃO SEGURA ────────────────────────────────────────────
+// â”€â”€ SESSÃƒO SEGURA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if (session_status() === PHP_SESSION_NONE) {
     session_name(SESSION_NAME);
     session_set_cookie_params([
@@ -100,3 +100,4 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 date_default_timezone_set('America/Belem');
+
