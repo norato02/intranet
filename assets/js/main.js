@@ -14,7 +14,7 @@ window.addEventListener('load', function() {
   window.scrollTo(0, 0);
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+function initMainScripts() {
   // --- Dark Mode ---
   const saved = localStorage.getItem('hmp_dark') || document.documentElement.dataset.theme;
   if (saved === 'dark') applyDark(true);
@@ -148,7 +148,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (current >= target) clearInterval(timer);
     }, 25);
   });
-});
+}
+// DOMContentLoaded já pode ter disparado antes deste script rodar
+// (ex: páginas com <script src="main.js"> sem ?v= carregado de forma
+// não-bloqueante) — roda direto nesse caso em vez de esperar um evento
+// que nunca mais vai disparar.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMainScripts);
+} else {
+  initMainScripts();
+}
 
 // --- Simple drag-sort for modules ---
 function initDragSort() {

@@ -165,6 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($action, ['new','edit'])) 
         $isFeatured = isset($_POST['is_featured']) ? 1 : 0;
         $isPublic   = isset($_POST['is_public']) ? 1 : 0;
         $removeImg  = ($_POST['remove_image'] ?? '') === '1';
+        $coverImgPos = preg_match('/^\d{1,3}% \d{1,3}%$/', trim($_POST['cover_image_position'] ?? '')) ? trim($_POST['cover_image_position']) : '50% 50%';
         if (!$title)   $error = 'O título é obrigatório.';
         if (!$content) $error = 'O conteúdo é obrigatório.';
         $cover = '';
@@ -180,8 +181,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($action, ['new','edit'])) 
                 $slug  = uniqueSlug(generateSlug($title), 'posts');
                 $pubAt = $status === 'published' ? date('Y-m-d H:i:s') : null;
                 $newId = Database::insert(
-                    "INSERT INTO posts (title,slug,summary,content,cover_image,cover_image_alt,cover_image_caption,cover_video_url,cover_video_type,media_type,type,category_id,author_id,status,is_featured,is_public,published_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    [$title,$slug,$summary,$content,$cover,$imgAlt,$imgCaption,$coverVideoUrl,$coverVideoType,$mediaType,$postType,$catId,$_SESSION['user_id'],$status,$isFeatured,$isPublic,$pubAt]
+                    "INSERT INTO posts (title,slug,summary,content,cover_image,cover_image_alt,cover_image_caption,cover_video_url,cover_video_type,media_type,cover_image_position,type,category_id,author_id,status,is_featured,is_public,published_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    [$title,$slug,$summary,$content,$cover,$imgAlt,$imgCaption,$coverVideoUrl,$coverVideoType,$mediaType,$coverImgPos,$postType,$catId,$_SESSION['user_id'],$status,$isFeatured,$isPublic,$pubAt]
                 );
                 handleGalleryUpload($newId);
                 handleVideoFileUpload($newId);
@@ -196,8 +197,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($action, ['new','edit'])) 
                 $finalPubAt = $exRow['published_at'] ?? null;
                 if ($status === 'published' && !$finalPubAt) $finalPubAt = date('Y-m-d H:i:s');
                 Database::query(
-                    "UPDATE posts SET title=?,slug=?,summary=?,content=?,cover_image=?,cover_image_alt=?,cover_image_caption=?,cover_video_url=?,cover_video_type=?,media_type=?,type=?,category_id=?,status=?,is_featured=?,is_public=?,published_at=? WHERE id=?",
-                    [$title,$slug,$summary,$content,$cover,$imgAlt,$imgCaption,$coverVideoUrl,$coverVideoType,$mediaType,$postType,$catId,$status,$isFeatured,$isPublic,$finalPubAt,$id]
+                    "UPDATE posts SET title=?,slug=?,summary=?,content=?,cover_image=?,cover_image_alt=?,cover_image_caption=?,cover_video_url=?,cover_video_type=?,media_type=?,cover_image_position=?,type=?,category_id=?,status=?,is_featured=?,is_public=?,published_at=? WHERE id=?",
+                    [$title,$slug,$summary,$content,$cover,$imgAlt,$imgCaption,$coverVideoUrl,$coverVideoType,$mediaType,$coverImgPos,$postType,$catId,$status,$isFeatured,$isPublic,$finalPubAt,$id]
                 );
                 handleGalleryUpload($id);
                 handleVideoFileUpload($id);
@@ -277,6 +278,7 @@ function sidebarLinks(string $active = ''): void { ?>
     <a href="modules.php?cat=sistema" class="sidebar-link"><span class="material-icons">apps</span> Sistemas</a>
     <a href="modules.php?cat=link_rapido" class="sidebar-link"><span class="material-icons">bolt</span> Links Rápidos</a>
     <a href="nav.php" class="sidebar-link"><span class="material-icons">menu_open</span> Menu Nav</a>
+    <a href="ramais.php" class="sidebar-link"><span class="material-icons">phone_in_talk</span> Ramais</a>
     <?php if (isAdmin()): ?>
     <div class="sidebar-label">Administração</div>
     <a href="users.php" class="sidebar-link"><span class="material-icons">group</span> Usuários</a>
@@ -538,11 +540,11 @@ function sidebarLinks(string $active = ''): void { ?>
                 <span class="material-icons" style="font-size:13px">home</span> Card de Destaque (Home)
               </div>
               <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;display:grid;grid-template-columns:2fr 1fr;box-shadow:0 4px 20px rgba(0,0,0,.1)">
-                <div id="pv-img-wrap" style="position:relative;overflow:hidden;min-height:220px;background:#e0e0e0;cursor:grab"
+                <div id="pv-img-wrap" style="position:relative;overflow:hidden;aspect-ratio:1.86/1;min-height:180px;background:#e0e0e0;cursor:grab"
                      onmousedown="startDrag(event)" ontouchstart="startDragTouch(event)">
                   <img id="pv-img" src="" alt=""
                        style="width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:none;transition:object-position .05s">
-                  <div id="pv-placeholder" style="width:100%;height:220px;background:linear-gradient(135deg,var(--primary),var(--accent2));display:flex;align-items:center;justify-content:center">
+                  <div id="pv-placeholder" style="width:100%;height:100%;background:linear-gradient(135deg,var(--primary),var(--accent2));display:flex;align-items:center;justify-content:center">
                     <span class="material-icons" style="font-size:64px;color:rgba(255,255,255,.35)">image</span>
                   </div>
                   <span id="pv-badge" style="position:absolute;top:12px;left:12px;background:#00897B;color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px"></span>

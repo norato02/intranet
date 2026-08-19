@@ -72,6 +72,7 @@ $cat  = $id ? Database::fetch('SELECT * FROM categories WHERE id=?', [$id]) : nu
     <a href="modules.php?cat=sistema" class="sidebar-link"><span class="material-icons">apps</span> Sistemas</a>
     <a href="modules.php?cat=link_rapido" class="sidebar-link"><span class="material-icons">bolt</span> Links Rápidos</a>
     <a href="nav.php" class="sidebar-link"><span class="material-icons">menu_open</span> Menu Nav</a>
+    <a href="ramais.php" class="sidebar-link"><span class="material-icons">phone_in_talk</span> Ramais</a>
     <?php if (isAdmin()): ?>
     <div class="sidebar-label">Administração</div>
     <a href="users.php" class="sidebar-link"><span class="material-icons">group</span> Usuários</a>

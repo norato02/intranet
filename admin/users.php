@@ -91,6 +91,7 @@ $user  = $id ? Database::fetch('SELECT * FROM users WHERE id=?', [$id]) : null;
     <a href="modules.php?cat=sistema" class="sidebar-link"><span class="material-icons">apps</span> Sistemas</a>
     <a href="modules.php?cat=link_rapido" class="sidebar-link"><span class="material-icons">bolt</span> Links Rápidos</a>
     <a href="nav.php" class="sidebar-link"><span class="material-icons">menu_open</span> Menu Nav</a>
+    <a href="ramais.php" class="sidebar-link"><span class="material-icons">phone_in_talk</span> Ramais</a>
     <div class="sidebar-label">Administração</div>
     <a href="users.php" class="sidebar-link active"><span class="material-icons">group</span> Usuários</a>
     <a href="settings.php" class="sidebar-link"><span class="material-icons">settings</span> Configurações</a>

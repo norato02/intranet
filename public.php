@@ -84,7 +84,7 @@ foreach ($navItemsAllPub as $i) {
       </a>
       <div class="dropdown-menu">
         <?php foreach ($children as $child): ?>
-        <a href="<?= htmlspecialchars($child['url']) ?>" class="dropdown-item"
+        <a href="<?= htmlspecialchars(navUrl($child['url'])) ?>" class="dropdown-item"
            <?= $child['open_new_tab'] ? 'target="_blank"' : '' ?>>
           <?php if ($child['icon']): ?><span class="material-icons"><?= htmlspecialchars($child['icon']) ?></span><?php endif; ?>
           <?= htmlspecialchars($child['label']) ?>
@@ -93,7 +93,7 @@ foreach ($navItemsAllPub as $i) {
       </div>
     </li>
     <?php else: ?>
-    <li><a href="<?= htmlspecialchars($item['url']) ?>" <?= $item['open_new_tab'] ? 'target="_blank"' : '' ?>>
+    <li><a href="<?= htmlspecialchars(navUrl($item['url'])) ?>" <?= $item['open_new_tab'] ? 'target="_blank"' : '' ?>>
       <?php if ($item['icon']): ?><span class="material-icons"><?= htmlspecialchars($item['icon']) ?></span><?php endif; ?>
       <?= htmlspecialchars($item['label']) ?>
     </a></li>
@@ -777,6 +777,12 @@ foreach ($navItemsAllPub as $i) {
     </div>
     <?php endif; ?>
   </div>
+
+<!-- ========================================================
+     RAMAIS
+     ======================================================== -->
+<?php elseif ($page === 'ramais'): ?>
+  <?php require __DIR__ . '/pages/ramais.php'; ?>
 
 <?php endif; ?>
 

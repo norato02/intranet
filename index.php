@@ -768,6 +768,12 @@ require_once __DIR__ . '/includes/header.php';
     <?php endif; ?>
   </div>
 
+<!-- ========================================================
+     RAMAIS
+     ======================================================== -->
+<?php elseif ($page === 'ramais'): ?>
+  <?php require __DIR__ . '/pages/ramais.php'; ?>
+
 <?php endif; ?>
 
 <style>

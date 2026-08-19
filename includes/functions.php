@@ -158,6 +158,18 @@ function assetVersion(string $relativePath): string {
 }
 
 /**
+ * URLs de nav_items são salvas relativas à raiz do site (ex: "index.php?page=ramais").
+ * Prefixa com BASE_URL para funcionar em páginas fora da raiz (ex: pages/rh.php),
+ * sem mexer em links absolutos, âncoras ou javascript:void(0).
+ */
+function navUrl(string $url): string {
+    if ($url === '' || preg_match('~^(https?://|//|#|javascript:|mailto:)~i', $url)) {
+        return $url;
+    }
+    return BASE_URL . '/' . ltrim($url, '/');
+}
+
+/**
  * Retorna um bloco <style> inline com as variáveis CSS de cor
  * lidas do banco de dados. Injete no <head> APÓS o style.css.
  * Não usa header(), não conflita com session_start().

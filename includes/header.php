@@ -57,7 +57,7 @@ $logoFile    = getSetting('site_logo', '');
       </a>
       <div class="dropdown-menu">
         <?php foreach ($children as $child): ?>
-        <a href="<?= htmlspecialchars($child['url']) ?>" class="dropdown-item"
+        <a href="<?= htmlspecialchars(navUrl($child['url'])) ?>" class="dropdown-item"
            <?= $child['open_new_tab'] ? 'target="_blank"' : '' ?>>
           <?php if ($child['icon']): ?><span class="material-icons"><?= htmlspecialchars($child['icon']) ?></span><?php endif; ?>
           <?= htmlspecialchars($child['label']) ?>
@@ -67,7 +67,7 @@ $logoFile    = getSetting('site_logo', '');
     </li>
     <?php else: ?>
     <li>
-      <a href="<?= htmlspecialchars($item['url']) ?>"
+      <a href="<?= htmlspecialchars(navUrl($item['url'])) ?>"
          <?= $item['open_new_tab'] ? 'target="_blank"' : '' ?>
          class="<?= (($_GET['page'] ?? '') === str_replace('index.php?page=', '', $item['url'])) ? 'active' : '' ?>">
         <?php if ($item['icon']): ?><span class="material-icons"><?= htmlspecialchars($item['icon']) ?></span><?php endif; ?>
