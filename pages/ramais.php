@@ -3,7 +3,7 @@ $busca = trim($_GET['q'] ?? ''); $andarF = trim($_GET['andar'] ?? ''); $where = 
 if ($busca) { $where .= ' AND (setor LIKE ? OR ramal LIKE ? OR linha LIKE ? OR andar LIKE ?)'; $params = ["%$busca%","%$busca%","%$busca%","%$busca%"]; }
 if ($andarF) { $where .= ' AND andar = ?'; $params[] = $andarF; }
 $todosRamais = Database::fetchAll("SELECT * FROM ramais $where ORDER BY sort_order, andar, setor", $params);
-$andares = Database::fetchAll('SELECT DISTINCT andar FROM ramais WHERE active=1 ORDER BY sort_order, andar');
+$andares = Database::fetchAll('SELECT andar, MIN(sort_order) AS sort_order FROM ramais WHERE active=1 GROUP BY andar ORDER BY sort_order, andar');
 $totalRamais = count($todosRamais); $totalLinhas = count(array_filter(array_column($todosRamais,'linha'),fn($l)=>$l!=='')); $totalAndares = count($andares);
 $porAndar = []; foreach ($todosRamais as $r) { $porAndar[$r['andar']][] = $r; }
 ?>
