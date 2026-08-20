@@ -566,7 +566,7 @@ foreach ($navItemsAllRh as $i) {
       </a>
       <div class="dropdown-menu">
         <?php foreach ($childrenRh as $child): ?>
-        <a href="<?= htmlspecialchars(navUrl($child['url'] ?? '')) ?>" class="dropdown-item"
+        <a href="<?= htmlspecialchars(publicNavUrl($child['url'] ?? '')) ?>" class="dropdown-item"
            <?= ($child['open_new_tab'] ?? 0) ? 'target="_blank"' : '' ?>>
           <?php if ($child['icon']): ?><span class="material-icons"><?= htmlspecialchars($child['icon']) ?></span><?php endif; ?>
           <?= htmlspecialchars($child['label']) ?>
@@ -576,7 +576,7 @@ foreach ($navItemsAllRh as $i) {
     </li>
     <?php else: ?>
     <li>
-      <a href="<?= htmlspecialchars(navUrl($item['url'] ?? '')) ?>"
+      <a href="<?= htmlspecialchars(publicNavUrl($item['url'] ?? '')) ?>"
          <?= $item['open_new_tab'] ? 'target="_blank"' : '' ?>>
         <?php if ($item['icon']): ?>
         <span class="material-icons"><?= htmlspecialchars($item['icon']) ?></span>
