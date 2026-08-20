@@ -61,8 +61,8 @@ foreach ($navItemsAllPub as $i) {
     <?php foreach ($navItemsPub as $item):
       $children = $navChildrenPub[$item['id']] ?? [];
       $itemPage = null;
-      if ($item['url'] === 'public.php') $itemPage = 'home';
-      elseif (preg_match('~^(?:index|public)\.php\?page=([^&]+)~', $item['url'], $pm)) $itemPage = $pm[1];
+      if (preg_match('~(?:^|/)public\.php$~', $item['url'])) $itemPage = 'home';
+      elseif (preg_match('~(?:^|/)(?:index|public)\.php\?page=([^&]+)~', $item['url'], $pm)) $itemPage = $pm[1];
     ?>
     <?php if ($children): ?>
     <li class="dropdown">
