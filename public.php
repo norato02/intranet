@@ -60,12 +60,13 @@ foreach ($navItemsAllPub as $i) {
   <ul class="navbar-nav">
     <?php foreach ($navItemsPub as $item):
       $children = $navChildrenPub[$item['id']] ?? [];
-      $itemPage = 'home';
-      if (preg_match('~^(?:index|public)\.php\?page=([^&]+)~', $item['url'], $pm)) $itemPage = $pm[1];
+      $itemPage = null;
+      if ($item['url'] === 'public.php') $itemPage = 'home';
+      elseif (preg_match('~^(?:index|public)\.php\?page=([^&]+)~', $item['url'], $pm)) $itemPage = $pm[1];
     ?>
     <?php if ($children): ?>
     <li class="dropdown">
-      <a href="javascript:void(0)" class="<?= $page === $itemPage ? 'active' : '' ?>">
+      <a href="javascript:void(0)" class="<?= ($itemPage !== null && $page === $itemPage) ? 'active' : '' ?>">
         <?php if ($item['icon']): ?><span class="material-icons"><?= htmlspecialchars($item['icon']) ?></span><?php endif; ?>
         <?= htmlspecialchars($item['label']) ?>
         <span class="material-icons" style="font-size:16px;margin-left:2px">expand_more</span>
@@ -81,7 +82,7 @@ foreach ($navItemsAllPub as $i) {
       </div>
     </li>
     <?php else: ?>
-    <li><a href="<?= htmlspecialchars(publicNavUrl($item['url'])) ?>" <?= $item['open_new_tab'] ? 'target="_blank"' : '' ?> class="<?= $page === $itemPage ? 'active' : '' ?>">
+    <li><a href="<?= htmlspecialchars(publicNavUrl($item['url'])) ?>" <?= $item['open_new_tab'] ? 'target="_blank"' : '' ?> class="<?= ($itemPage !== null && $page === $itemPage) ? 'active' : '' ?>">
       <?php if ($item['icon']): ?><span class="material-icons"><?= htmlspecialchars($item['icon']) ?></span><?php endif; ?>
       <?= htmlspecialchars($item['label']) ?>
     </a></li>
