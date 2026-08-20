@@ -1,6 +1,10 @@
 Options -Indexes
 Options -MultiViews
 
+# Acessar a raiz da pasta deve cair no portal público, não na área
+# logada — quem quiser entrar clica em "Área Restrita" a partir de lá.
+DirectoryIndex public.php index.php
+
 # Segurança de cabeçalhos
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
