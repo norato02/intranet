@@ -172,7 +172,7 @@ $darkAttr  = $isDark ? 'dark' : 'light';
       }
     ?>
     <div class="post-featured">
-        <div class="pf-image">
+        <div class="pf-image" style="aspect-ratio:<?= htmlspecialchars($featured['cover_aspect_ratio'] ?? '1.33') ?>/1">
           <?php if ($featMediaType==='video' && $featVideoUrl): ?>
           <?php if ($featVideoType==='mp4'): ?>
           <div onclick="event.preventDefault()" style="height:100%;background:#000;display:flex;align-items:center">

@@ -129,7 +129,7 @@ require_once __DIR__ . '/includes/header.php';
       }
     ?>
     <div class="post-featured">
-        <div class="pf-image">
+        <div class="pf-image" style="aspect-ratio:<?= htmlspecialchars($featured['cover_aspect_ratio'] ?? '1.33') ?>/1">
           <?php if ($featMediaType === 'video' && $featVideoUrl): ?>
           <!-- Vídeo de capa no destaque -->
           <?php if ($featVideoType === 'mp4'): ?>

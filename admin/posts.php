@@ -166,6 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($action, ['new','edit'])) 
         $isPublic   = isset($_POST['is_public']) ? 1 : 0;
         $removeImg  = ($_POST['remove_image'] ?? '') === '1';
         $coverImgPos = preg_match('/^\d{1,3}% \d{1,3}%$/', trim($_POST['cover_image_position'] ?? '')) ? trim($_POST['cover_image_position']) : '50% 50%';
+        $coverAspectRatio = in_array($_POST['cover_aspect_ratio'] ?? '', ['1', '1.33', '1.78', '1.86'], true) ? $_POST['cover_aspect_ratio'] : '1.33';
         if (!$title)   $error = 'O título é obrigatório.';
         if (!$content) $error = 'O conteúdo é obrigatório.';
         $cover = '';
@@ -181,8 +182,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($action, ['new','edit'])) 
                 $slug  = uniqueSlug(generateSlug($title), 'posts');
                 $pubAt = $status === 'published' ? date('Y-m-d H:i:s') : null;
                 $newId = Database::insert(
-                    "INSERT INTO posts (title,slug,summary,content,cover_image,cover_image_alt,cover_image_caption,cover_video_url,cover_video_type,media_type,cover_image_position,type,category_id,author_id,status,is_featured,is_public,published_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                    [$title,$slug,$summary,$content,$cover,$imgAlt,$imgCaption,$coverVideoUrl,$coverVideoType,$mediaType,$coverImgPos,$postType,$catId,$_SESSION['user_id'],$status,$isFeatured,$isPublic,$pubAt]
+                    "INSERT INTO posts (title,slug,summary,content,cover_image,cover_image_alt,cover_image_caption,cover_video_url,cover_video_type,media_type,cover_image_position,cover_aspect_ratio,type,category_id,author_id,status,is_featured,is_public,published_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    [$title,$slug,$summary,$content,$cover,$imgAlt,$imgCaption,$coverVideoUrl,$coverVideoType,$mediaType,$coverImgPos,$coverAspectRatio,$postType,$catId,$_SESSION['user_id'],$status,$isFeatured,$isPublic,$pubAt]
                 );
                 handleGalleryUpload($newId);
                 handleVideoFileUpload($newId);
@@ -197,8 +198,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($action, ['new','edit'])) 
                 $finalPubAt = $exRow['published_at'] ?? null;
                 if ($status === 'published' && !$finalPubAt) $finalPubAt = date('Y-m-d H:i:s');
                 Database::query(
-                    "UPDATE posts SET title=?,slug=?,summary=?,content=?,cover_image=?,cover_image_alt=?,cover_image_caption=?,cover_video_url=?,cover_video_type=?,media_type=?,cover_image_position=?,type=?,category_id=?,status=?,is_featured=?,is_public=?,published_at=? WHERE id=?",
-                    [$title,$slug,$summary,$content,$cover,$imgAlt,$imgCaption,$coverVideoUrl,$coverVideoType,$mediaType,$coverImgPos,$postType,$catId,$status,$isFeatured,$isPublic,$finalPubAt,$id]
+                    "UPDATE posts SET title=?,slug=?,summary=?,content=?,cover_image=?,cover_image_alt=?,cover_image_caption=?,cover_video_url=?,cover_video_type=?,media_type=?,cover_image_position=?,cover_aspect_ratio=?,type=?,category_id=?,status=?,is_featured=?,is_public=?,published_at=? WHERE id=?",
+                    [$title,$slug,$summary,$content,$cover,$imgAlt,$imgCaption,$coverVideoUrl,$coverVideoType,$mediaType,$coverImgPos,$coverAspectRatio,$postType,$catId,$status,$isFeatured,$isPublic,$finalPubAt,$id]
                 );
                 handleGalleryUpload($id);
                 handleVideoFileUpload($id);
@@ -539,8 +540,27 @@ function sidebarLinks(string $active = ''): void { ?>
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:5px">
                 <span class="material-icons" style="font-size:13px">home</span> Card de Destaque (Home)
               </div>
+
+              <!-- Formato da imagem: análise dos posts publicados mostra que a maioria
+                   usa fotos 4:3 ou quadradas — escolher o formato certo evita cortar
+                   o conteúdo da foto no card de destaque. -->
+              <div style="margin-bottom:12px">
+                <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px">Formato da imagem de capa</div>
+                <div style="display:flex;gap:7px;flex-wrap:wrap">
+                  <?php foreach ([
+                    ['1.33', '4:3 (recomendado)'],
+                    ['1',    '1:1 quadrada'],
+                    ['1.78', '16:9 widescreen'],
+                    ['1.86', 'Panorâmica'],
+                  ] as [$ratioVal, $ratioLabel]): ?>
+                  <button type="button" class="pv-format-btn" data-ratio="<?= $ratioVal ?>" onclick="setPvFormat('<?= $ratioVal ?>')"
+                          style="padding:6px 13px;border:1.5px solid var(--border);border-radius:20px;background:var(--bg);font-size:12px;cursor:pointer;transition:.15s"><?= $ratioLabel ?></button>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+
               <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;display:grid;grid-template-columns:2fr 1fr;box-shadow:0 4px 20px rgba(0,0,0,.1)">
-                <div id="pv-img-wrap" style="position:relative;overflow:hidden;aspect-ratio:1.86/1;min-height:180px;background:#e0e0e0;cursor:grab"
+                <div id="pv-img-wrap" style="position:relative;overflow:hidden;aspect-ratio:1.33/1;min-height:180px;background:#e0e0e0;cursor:grab"
                      onmousedown="startDrag(event)" ontouchstart="startDragTouch(event)">
                   <img id="pv-img" src="" alt=""
                        style="width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:none;transition:object-position .05s">
@@ -615,6 +635,8 @@ function sidebarLinks(string $active = ''): void { ?>
               <!-- Campo oculto com posição final -->
               <input type="hidden" name="cover_image_position" id="cover_image_position"
                      value="<?= htmlspecialchars($post['cover_image_position'] ?? '50% 50%') ?>">
+              <input type="hidden" name="cover_aspect_ratio" id="cover_aspect_ratio"
+                     value="<?= htmlspecialchars($post['cover_aspect_ratio'] ?? '1.33') ?>">
             </div>
 
             <!-- PREVIEW: Card na Listagem -->
@@ -876,6 +898,10 @@ function buildPreview() {
   document.getElementById('pv-badge').textContent    = label.toUpperCase();
   document.getElementById('pv-badge').style.background = color;
 
+  // Formato da imagem
+  var savedRatio = document.getElementById('cover_aspect_ratio')?.value || '1.33';
+  setPvFormat(savedRatio);
+
   // Listagem
   document.getElementById('pv-list-title').textContent   = title;
   document.getElementById('pv-list-summary').textContent = summary.substring(0, 100) + (summary.length > 100 ? '…' : '');
@@ -942,6 +968,18 @@ function setPvPos(x, y) {
   document.getElementById('pv-pos-x').value = x;
   document.getElementById('pv-pos-y').value = y;
   applyPvPos();
+}
+
+function setPvFormat(ratio) {
+  document.getElementById('pv-img-wrap').style.aspectRatio = ratio + '/1';
+  document.getElementById('cover_aspect_ratio').value = ratio;
+  document.querySelectorAll('.pv-format-btn').forEach(function (btn) {
+    var active = btn.dataset.ratio === ratio;
+    btn.style.borderColor = active ? 'var(--primary)' : 'var(--border)';
+    btn.style.background  = active ? 'var(--primary-xlight)' : 'var(--bg)';
+    btn.style.color       = active ? 'var(--primary)' : '';
+    btn.style.fontWeight  = active ? '700' : '400';
+  });
 }
 
 function savePvPos() {
