@@ -170,6 +170,19 @@ function navUrl(string $url): string {
 }
 
 /**
+ * Mesma lógica de navUrl(), mas para o menu de public.php (usuário sem
+ * login): traduz "index.php?page=X" (área logada) para "public.php?page=X"
+ * (mesma página, versão pública), pra o menu público nunca ficar
+ * desalinhado do que está cadastrado no admin > Menu Nav.
+ */
+function publicNavUrl(string $url): string {
+    if (preg_match('~^index\.php\?page=(.+)$~', $url, $m)) {
+        return navUrl('public.php?page=' . $m[1]);
+    }
+    return navUrl($url);
+}
+
+/**
  * Retorna um bloco <style> inline com as variáveis CSS de cor
  * lidas do banco de dados. Injete no <head> APÓS o style.css.
  * Não usa header(), não conflita com session_start().

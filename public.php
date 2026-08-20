@@ -14,13 +14,11 @@ $isDark    = isset($_COOKIE['acqua_dark']) && $_COOKIE['acqua_dark'] === 'dark';
 $logoFile  = getSetting('site_logo', '');
 $darkAttr  = $isDark ? 'dark' : 'light';
 
-// Menu extra (além de Início/Comunicados/Notícias/Sistemas, que já têm
-// versão própria fixa abaixo com URLs de public.php) — mesma fonte
-// (nav_items) usada no menu de quem está logado, pra nunca ficarem
-// diferentes entre as duas telas.
-$navCoreLabels = ['Início', 'Comunicados', 'Notícias Externas', 'Sistemas'];
+// Menu espelha exatamente o cadastrado em admin > Menu Nav (mesma fonte
+// usada no header de quem está logado), só traduzindo links index.php
+// para public.php via publicNavUrl() — nunca fica desalinhado do admin.
 $navItemsAllPub = Database::fetchAll('SELECT * FROM nav_items WHERE active=1 ORDER BY sort_order');
-$navExtra = array_values(array_filter($navItemsAllPub, fn($i) => $i['parent_id'] === null && !in_array($i['label'], $navCoreLabels, true)));
+$navItemsPub = array_values(array_filter($navItemsAllPub, fn($i) => $i['parent_id'] === null));
 $navChildrenPub = [];
 foreach ($navItemsAllPub as $i) {
     if ($i['parent_id'] !== null) $navChildrenPub[$i['parent_id']][] = $i;
@@ -60,31 +58,21 @@ foreach ($navItemsAllPub as $i) {
   </a>
 
   <ul class="navbar-nav">
-    <li><a href="public.php" class="<?= $page==='home'?'active':'' ?>">
-      <span class="material-icons">home</span>Início
-    </a></li>
-    <li><a href="public.php?page=comunicados" class="<?= $page==='comunicados'?'active':'' ?>">
-      <span class="material-icons">campaign</span>Comunicados
-    </a></li>
-    <li><a href="public.php?page=noticias" class="<?= $page==='noticias'?'active':'' ?>">
-      <span class="material-icons">newspaper</span>Notícias Externas
-    </a></li>
-    <li><a href="public.php?page=sistemas" class="<?= $page==='sistemas'?'active':'' ?>">
-      <span class="material-icons">apps</span>Sistemas
-    </a></li>
-    <?php foreach ($navExtra as $item):
+    <?php foreach ($navItemsPub as $item):
       $children = $navChildrenPub[$item['id']] ?? [];
+      $itemPage = 'home';
+      if (preg_match('~^(?:index|public)\.php\?page=([^&]+)~', $item['url'], $pm)) $itemPage = $pm[1];
     ?>
     <?php if ($children): ?>
     <li class="dropdown">
-      <a href="javascript:void(0)">
+      <a href="javascript:void(0)" class="<?= $page === $itemPage ? 'active' : '' ?>">
         <?php if ($item['icon']): ?><span class="material-icons"><?= htmlspecialchars($item['icon']) ?></span><?php endif; ?>
         <?= htmlspecialchars($item['label']) ?>
         <span class="material-icons" style="font-size:16px;margin-left:2px">expand_more</span>
       </a>
       <div class="dropdown-menu">
         <?php foreach ($children as $child): ?>
-        <a href="<?= htmlspecialchars(navUrl($child['url'])) ?>" class="dropdown-item"
+        <a href="<?= htmlspecialchars(publicNavUrl($child['url'])) ?>" class="dropdown-item"
            <?= $child['open_new_tab'] ? 'target="_blank"' : '' ?>>
           <?php if ($child['icon']): ?><span class="material-icons"><?= htmlspecialchars($child['icon']) ?></span><?php endif; ?>
           <?= htmlspecialchars($child['label']) ?>
@@ -93,7 +81,7 @@ foreach ($navItemsAllPub as $i) {
       </div>
     </li>
     <?php else: ?>
-    <li><a href="<?= htmlspecialchars(navUrl($item['url'])) ?>" <?= $item['open_new_tab'] ? 'target="_blank"' : '' ?>>
+    <li><a href="<?= htmlspecialchars(publicNavUrl($item['url'])) ?>" <?= $item['open_new_tab'] ? 'target="_blank"' : '' ?> class="<?= $page === $itemPage ? 'active' : '' ?>">
       <?php if ($item['icon']): ?><span class="material-icons"><?= htmlspecialchars($item['icon']) ?></span><?php endif; ?>
       <?= htmlspecialchars($item['label']) ?>
     </a></li>
