@@ -210,7 +210,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($action, ['new','edit'])) 
 }
 
 function handleGalleryUpload(int $postId): void {
-    if (empty($_FILES['gallery_images']['name'][0])) return;
+    // Pode haver mais de um <input name="gallery_images[]"> no form (aba Galeria e painel Slider):
+    // um vazio não deve impedir o envio do outro — entradas sem arquivo são puladas no loop.
+    if (empty($_FILES['gallery_images']['name']) || !array_filter((array)$_FILES['gallery_images']['name'])) return;
     $count = Database::count('SELECT COUNT(*) FROM post_gallery WHERE post_id=?', [$postId]);
     foreach ($_FILES['gallery_images']['name'] as $i => $name) {
         if ($_FILES['gallery_images']['error'][$i] !== UPLOAD_ERR_OK) continue;
@@ -432,19 +434,10 @@ function sidebarLinks(string $active = ''): void { ?>
             <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)"></div>
             <?php endif; ?>
             <?php if($id): ?>
-            <form method="POST" enctype="multipart/form-data"
-                  action="posts.php?action=edit&id=<?= $id ?>&type=<?= $type ?>"
-                  id="galleryForm">
-              <input type="hidden" name="csrf" value="<?= csrf() ?>">
-              <input type="hidden" name="remove_image" value="0">
-              <input type="hidden" name="title" value="<?= htmlspecialchars($post['title']??'') ?>">
-              <input type="hidden" name="summary" value="<?= htmlspecialchars($post['summary']??'') ?>">
-              <input type="hidden" name="content" value="<?= htmlspecialchars($post['content']??'') ?>">
-              <input type="hidden" name="post_type" value="<?= htmlspecialchars($post['type']??'comunicado') ?>">
-              <input type="hidden" name="category_id" value="<?= htmlspecialchars($post['category_id']??'') ?>">
-              <input type="hidden" name="status" value="<?= htmlspecialchars($post['status']??'draft') ?>">
-              <input type="hidden" name="is_public" value="<?= $post['is_public']??1 ?>">
-              <input type="hidden" name="is_featured" value="<?= $post['is_featured']??0 ?>">
+            <?php /* Fotos/vídeo da galeria fazem parte do form principal (salvar tudo junto).
+                     Nada de <form> aninhado aqui: ele duplicava title/summary/content/status
+                     com os valores antigos do banco e sobrescrevia o que o editor digitou. */ ?>
+            <div id="galleryForm">
               <div style="margin-top:4px">
                 <!-- Upload de Fotos -->
                 <label class="form-label">Adicionar fotos</label>
@@ -486,7 +479,7 @@ function sidebarLinks(string $active = ''): void { ?>
                   </button>
                 </div>
               </div>
-            </form>
+            </div>
             <?php else: ?><div class="alert alert-warning"><span class="material-icons">info</span> Salve a publicação primeiro.</div><?php endif; ?>
           </div>
           <!-- TAB Vídeos -->
@@ -512,17 +505,18 @@ function sidebarLinks(string $active = ''): void { ?>
             </div>
             <?php endif; ?>
             <?php if($id): ?>
-            <form method="POST" action="posts.php?action=add_video&type=<?= $type ?>" style="margin-top:8px">
-              <input type="hidden" name="csrf" value="<?= csrf() ?>">
-              <input type="hidden" name="post_id" value="<?= $id ?>">
+            <?php /* campos ligados ao <form id="addVideoForm"> (fora do form principal) via atributo form= */ ?>
+            <div style="margin-top:8px">
+              <input type="hidden" form="addVideoForm" name="csrf" value="<?= csrf() ?>">
+              <input type="hidden" form="addVideoForm" name="post_id" value="<?= $id ?>">
               <div class="form-group"><label class="form-label">URL do Vídeo</label>
-                <input type="url" name="video_url" class="form-control" placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/...">
+                <input type="url" form="addVideoForm" name="video_url" class="form-control" placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/...">
                 <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Suporte: YouTube, Vimeo e links diretos .mp4</div>
               </div>
               <div class="form-group"><label class="form-label">Título (opcional)</label>
-                <input type="text" name="video_title" class="form-control" placeholder="Ex: Vídeo institucional 2025"></div>
-              <button type="submit" class="btn btn-outline btn-sm"><span class="material-icons">add</span> Adicionar Vídeo</button>
-            </form>
+                <input type="text" form="addVideoForm" name="video_title" class="form-control" placeholder="Ex: Vídeo institucional 2025"></div>
+              <button type="submit" form="addVideoForm" class="btn btn-outline btn-sm"><span class="material-icons">add</span> Adicionar Vídeo</button>
+            </div>
             <?php else: ?><div class="alert alert-warning"><span class="material-icons">info</span> Salve a publicação primeiro.</div><?php endif; ?>
           </div>
 
@@ -765,11 +759,10 @@ function sidebarLinks(string $active = ''): void { ?>
               <?php if ($id): ?>
               <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
                 <label class="form-label" style="font-size:11px">Ou enviar arquivo MP4 diretamente</label>
-                <form method="POST" enctype="multipart/form-data"
-                      action="posts.php?action=upload_cover_video&id=<?= $id ?>&type=<?= $type ?>">
-                  <input type="hidden" name="csrf" value="<?= csrf() ?>">
+                <div>
+                  <input type="hidden" form="coverVideoForm" name="csrf" value="<?= csrf() ?>">
                   <div class="upload-area" style="padding:12px;border-color:#e65100" id="coverVideoUploadArea">
-                    <input type="file" name="cover_video_file" id="coverVideoFile"
+                    <input type="file" form="coverVideoForm" name="cover_video_file" id="coverVideoFile"
                            accept="video/mp4,video/webm,.mp4,.webm"
                            onchange="previewVideoFile(this)">
                     <div class="upload-icon"><span class="material-icons" style="color:#e65100;font-size:28px">videocam</span></div>
@@ -779,11 +772,11 @@ function sidebarLinks(string $active = ''): void { ?>
                   <div id="coverVideoFilePreview" style="display:none;margin-top:8px">
                     <video id="coverVideoFileEl" controls style="width:100%;border-radius:8px;max-height:140px"></video>
                   </div>
-                  <button type="submit" class="btn btn-sm" id="coverVideoSubmitBtn"
+                  <button type="submit" form="coverVideoForm" class="btn btn-sm" id="coverVideoSubmitBtn"
                           style="margin-top:8px;width:100%;background:#e65100;color:#fff;border:none;display:none">
                     <span class="material-icons">cloud_upload</span> Enviar Vídeo
                   </button>
-                </form>
+                </div>
               </div>
               <?php else: ?>
               <div class="alert alert-warning" style="font-size:12px;margin-top:12px">
@@ -810,17 +803,8 @@ function sidebarLinks(string $active = ''): void { ?>
                 <?php endforeach; ?>
               </div>
               <?php endif; ?>
-              <form method="POST" enctype="multipart/form-data" action="posts.php?action=edit&id=<?= $id ?>&type=<?= $type ?>">
-                <input type="hidden" name="csrf" value="<?= csrf() ?>">
-                <input type="hidden" name="title" value="<?= htmlspecialchars($post['title']??'') ?>">
-                <input type="hidden" name="summary" value="<?= htmlspecialchars($post['summary']??'') ?>">
-                <input type="hidden" name="content" value="<?= htmlspecialchars($post['content']??'') ?>">
-                <input type="hidden" name="post_type" value="<?= htmlspecialchars($post['type']??'comunicado') ?>">
-                <input type="hidden" name="category_id" value="<?= htmlspecialchars($post['category_id']??'') ?>">
-                <input type="hidden" name="status" value="<?= htmlspecialchars($post['status']??'draft') ?>">
-                <input type="hidden" name="is_public" value="<?= $post['is_public']??1 ?>">
-                <input type="hidden" name="is_featured" value="<?= $post['is_featured']??0 ?>">
-                <input type="hidden" name="media_type" value="slider">
+              <?php /* Sem <form> aninhado: o envio das fotos do slider salva junto com o form principal. */ ?>
+              <div>
                 <div class="upload-area" id="galleryUploadArea2">
                   <input type="file" name="gallery_images[]" id="galleryFiles2" accept="image/*" multiple onchange="previewGallery2(this)">
                   <div class="upload-icon"><span class="material-icons">photo_library</span></div>
@@ -831,7 +815,7 @@ function sidebarLinks(string $active = ''): void { ?>
                 <button type="submit" class="btn btn-primary btn-sm" style="margin-top:10px;width:100%" id="gallerySubmitBtn2" disabled>
                   <span class="material-icons">cloud_upload</span> Enviar Fotos
                 </button>
-              </form>
+              </div>
               <?php else: ?>
               <div class="alert alert-warning" style="font-size:12px"><span class="material-icons">info</span> Salve a publicação primeiro.</div>
               <?php endif; ?>
@@ -844,6 +828,13 @@ function sidebarLinks(string $active = ''): void { ?>
         </div>
       </div>
     </form>
+    <?php if ($id): ?>
+    <!-- Forms de ação própria, FORA do form principal (HTML não permite <form> aninhado);
+         os campos ficam nas abas e se ligam a eles pelo atributo form="..." -->
+    <form id="addVideoForm" method="POST" action="posts.php?action=add_video&type=<?= $type ?>"></form>
+    <form id="coverVideoForm" method="POST" enctype="multipart/form-data"
+          action="posts.php?action=upload_cover_video&id=<?= $id ?>&type=<?= $type ?>"></form>
+    <?php endif; ?>
   <?php endif; ?>
   </main>
 </div>
@@ -1294,7 +1285,41 @@ if(uploadArea){uploadArea.addEventListener('dragover',e=>{e.preventDefault();upl
 
 // Editor de conteúdo
 const editor=document.getElementById('content-editor'),hidden=document.getElementById('content-hidden');
-if(editor&&hidden){editor.addEventListener('input',()=>{hidden.value=editor.innerHTML;});document.querySelectorAll('.editor-btn[data-cmd]').forEach(btn=>{btn.addEventListener('click',e=>{e.preventDefault();document.execCommand(btn.dataset.cmd,false,btn.dataset.val||null);editor.focus();hidden.value=editor.innerHTML;});});}
+if(editor&&hidden){
+  const syncContent=()=>{hidden.value=editor.innerHTML;};
+  editor.addEventListener('input',syncContent);
+  editor.closest('form')?.addEventListener('submit',syncContent);
+  const toolbar=document.querySelector('.editor-toolbar');
+  let savedRange=null;
+  const saveSel=()=>{const s=getSelection();if(s.rangeCount&&editor.contains(s.anchorNode))savedRange=s.getRangeAt(0).cloneRange();};
+  editor.addEventListener('keyup',saveSel);editor.addEventListener('mouseup',saveSel);editor.addEventListener('blur',saveSel);
+  // Clicar no botão não pode tirar a seleção do texto
+  toolbar.addEventListener('mousedown',e=>{if(e.target.closest('.editor-btn'))e.preventDefault();});
+  // Em fase de captura: o handler antigo do main.js também escutava estes botões e rodava o comando
+  // uma 2ª vez (negrito se desfazia e o link era criado sem URL, virando href="null").
+  toolbar.addEventListener('click',e=>{
+    const btn=e.target.closest('.editor-btn[data-cmd]');
+    if(!btn)return;
+    e.preventDefault();e.stopPropagation();
+    const cmd=btn.dataset.cmd;
+    editor.focus();
+    const cur=getSelection();
+    if(savedRange&&!(cur.rangeCount&&editor.contains(cur.anchorNode))){cur.removeAllRanges();cur.addRange(savedRange);}
+    if(cmd==='createLink'){
+      const sel=getSelection();
+      if(!sel.rangeCount||sel.isCollapsed){alert('Selecione primeiro o texto que vai virar link.');return;}
+      let url=prompt('Endereço do link (ex: https://exemplo.com):','https://');
+      if(!url||!(url=url.trim())||url==='https://')return;
+      if(/^\s*javascript:/i.test(url)){alert('Endereço de link inválido.');return;}
+      if(!/^([a-z][a-z0-9+.-]*:|\/|#)/i.test(url))url='https://'+url;
+      document.execCommand('createLink',false,url);
+      editor.querySelectorAll('a[href]:not([target])').forEach(a=>{a.target='_blank';a.rel='noopener noreferrer';});
+    }else{
+      document.execCommand(cmd,false,btn.dataset.val||null);
+    }
+    saveSel();syncContent();
+  },true);
+}
 </script>
 </body>
 </html>

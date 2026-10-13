@@ -159,6 +159,8 @@ h1,h2,h3,h4,h5,h6{font-family:var(--font-heading);line-height:1.3;color:var(--te
 .post-content p{margin-bottom:14px;line-height:1.8}
 .post-content ul,.post-content ol{padding-left:24px;margin-bottom:14px}
 .post-content li{margin-bottom:6px;line-height:1.7}
+.post-content a,#content-editor a{color:var(--primary);text-decoration:underline;text-underline-offset:2px;font-weight:600;cursor:pointer}
+.post-content a:hover,#content-editor a:hover{color:var(--primary-dark)}
 .post-content blockquote{border-left:4px solid var(--primary);padding:12px 20px;background:var(--primary-xlight);border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin:20px 0;font-style:italic;color:var(--text-muted)}
 
 /* Upload area */
