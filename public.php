@@ -27,7 +27,7 @@ $darkAttr  = $isDark ? 'dark' : 'light';
   ?></title>
   <meta name="description" content="<?= htmlspecialchars($tagline) ?> — Portal de Comunicação Institucional">
   <script>if('scrollRestoration'in history)history.scrollRestoration='manual';window.scrollTo(0,0);window.addEventListener('pageshow',function(){window.scrollTo(0,0);});</script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0&display=block">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=<?= assetVersion('assets/css/style.css') ?>">
   <?= getColorVarsStyle() ?>
 </head>

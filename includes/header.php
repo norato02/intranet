@@ -18,7 +18,7 @@ $logoFile    = getSetting('site_logo', '');
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= isset($pageTitle) ? htmlspecialchars($pageTitle) . ' — ' : '' ?><?= htmlspecialchars($siteName) ?></title>
   <meta name="description" content="<?= htmlspecialchars($siteTagline) ?>">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0&display=block">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=<?= assetVersion('assets/css/style.css') ?>">
   <?= getColorVarsStyle() ?>
   <?php if (isset($extraHead)) echo $extraHead; ?>

@@ -113,7 +113,7 @@ $openNew   = ($msgType === 'danger' && !$editRamal && !isset($_GET['edit']));
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ramais — <?= htmlspecialchars(getSetting('site_name','Intranet')) ?></title>
   <meta name="csrf-reorder" content="<?= csrf() ?>">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0&display=block">
   <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=<?= assetVersion('assets/css/style.css') ?>">
   <?= getColorVarsStyle() ?>
   <style>

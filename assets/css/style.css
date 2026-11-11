@@ -459,3 +459,7 @@ table.table tr:hover td{background:var(--primary-xlight)}
 .video-thumb-label{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));color:#fff;font-size:13px;font-weight:600;padding:24px 16px 12px;text-align:center}
 /* Vídeo de capa em post aberto */
 .post-cover-video{border-radius:0;aspect-ratio:16/9;max-height:520px}
+
+/* Icones: usa Material Symbols (cobre todos os nomes de icone, p.ex. radiology, medical_information, femur),
+   mantendo a classe .material-icons usada em todo o sistema. */
+.material-icons{font-family:"Material Symbols Outlined"!important;font-weight:400;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;word-wrap:normal;direction:ltr;-webkit-font-feature-settings:"liga";font-feature-settings:"liga";-webkit-font-smoothing:antialiased}
