@@ -159,16 +159,16 @@ CREATE TABLE `settings` (
 --
 
 INSERT INTO `settings` (`id`, `setting_key`, `setting_value`, `setting_type`, `label`, `group_name`, `updated_at`) VALUES
-(1, 'site_name', 'Intranet', 'text', 'Nome do Site', 'general', '2026-04-09 11:22:10'),
-(2, 'site_tagline', 'Portal Corporativo', 'text', 'Subtítulo', 'general', '2026-04-09 11:22:10'),
+(1, 'site_name', 'Intranet Acqua', 'text', 'Nome do Site', 'general', '2026-04-09 11:22:10'),
+(2, 'site_tagline', 'Pronto Socorro Dr° Roberto Macedo', 'text', 'Subtítulo', 'general', '2026-04-09 11:22:10'),
 (3, 'site_logo', '', 'image', 'Logo', 'general', '2026-04-09 11:22:10'),
-(4, 'footer_text', '© 2026 Minha Empresa. Todos os direitos reservados.', 'textarea', 'Rodapé', 'general', '2026-04-09 11:22:10'),
-(5, 'primary_color', '#00897B', 'color', 'Cor Primária', 'appearance', '2026-04-09 11:22:10'),
-(6, 'secondary_color', '#004D40', 'color', 'Cor Secundária', 'appearance', '2026-04-09 11:22:10'),
+(4, 'footer_text', '© 2026 Pronto Socorro Dr° Roberto Macedo. Todos os direitos reservados.', 'textarea', 'Rodapé', 'general', '2026-04-09 11:22:10'),
+(5, 'primary_color', '#19c8b6', 'color', 'Cor Primária', 'appearance', '2026-04-09 11:22:10'),
+(6, 'secondary_color', '#02a78b', 'color', 'Cor Secundária', 'appearance', '2026-04-09 11:22:10'),
 (7, 'posts_per_page', '10', 'text', 'Posts por Página', 'general', '2026-04-09 11:22:10'),
 (8, 'allow_registration', '0', 'boolean', 'Permitir Auto-cadastro', 'auth', '2026-04-09 11:22:10'),
 (9, 'session_timeout', '480', 'text', 'Timeout da Sessão (min)', 'auth', '2026-04-09 11:22:10'),
-(10, 'hero_title', 'Minha Empresa', 'text', 'Título do Hero', 'appearance', '2026-04-09 11:22:10'),
+(10, 'hero_title', 'Pronto Socorro Dr° Roberto Macedo', 'text', 'Título do Hero', 'appearance', '2026-04-09 11:22:10'),
 (11, 'hero_subtitle', 'Portal de Comunicação Institucional', 'text', 'Subtítulo do Hero', 'appearance', '2026-04-09 11:22:10'),
 (12, 'image_max_width', '1920', 'text', 'Largura máx. imagem (px)', 'media', '2026-04-09 11:22:10'),
 (13, 'image_quality', '85', 'text', 'Qualidade JPEG (1-100)', 'media', '2026-04-09 11:22:10'),
